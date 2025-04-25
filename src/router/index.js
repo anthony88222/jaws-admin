@@ -1,15 +1,12 @@
-// src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-
-// 匯入頁面元件
-import AdminLogin from '../views/admin/AdminLogin.vue'
-import AdminDashboard from '../views/admin/AdminDashboard.vue'
-import AdminGames from '../views/admin/AdminGames.vue'
+import DashboardView from '../views/DashboardView.vue'
+import GameManagement from '../views/GameManagement.vue'
+import PromotionView from '../views/PromotionView.vue'
 
 const routes = [
-  { path: '/', name: 'AdminLogin', component: AdminLogin },
-  { path: '/admin/dashboard', name: 'AdminDashboard', component: AdminDashboard },
-  { path: '/admin/games', name: 'AdminGames', component: AdminGames }
+  { path: '/admin', name: 'Dashboard', component: DashboardView },
+  { path: '/admin/games', name: 'GameManagement', component: GameManagement },
+  { path: '/admin/promotions', name: 'PromotionView', component: PromotionView },
 ]
 
 const router = createRouter({
