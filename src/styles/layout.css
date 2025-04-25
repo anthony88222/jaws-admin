@@ -1,0 +1,278 @@
+/* 保證 footer 貼底 */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 95vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* ===== global.css ===== */
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+
+body {
+  background-color: #0d0f1a; 
+  position: relative;
+  overflow-x: hidden;
+  font-family: var(--font-family);
+}
+
+/* 光暈效果層（可多層） */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  opacity: 0.3;
+  mix-blend-mode: screen;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle at 20% 30%, #00ffff80 0%, transparent 60%),
+    radial-gradient(circle at 80% 40%, #ff00ff80 0%, transparent 70%);
+}
+
+body::after {
+  background-image:
+    radial-gradient(circle at 50% 90%, #00ff8080 0%, transparent 70%),
+    radial-gradient(circle at 75% 75%, #ff008080 0%, transparent 80%);
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+/* ===== header.css ===== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  background: #111;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+header .container {
+  width: 100%;
+  padding: 0 var(--container-padding);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+/* 建議高度 */ 
+.logo {
+  display: flex;
+  align-items: center;
+  height: 70px;
+}
+
+.logo img {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+nav a {
+  color: var(--color-primary);
+  text-decoration: none;
+  text-shadow: 0 0 6px var(--color-primary);
+  font-weight: bold;
+}
+
+nav a:hover {
+  /* color: var(--color-secondary); */
+  color: yellow;
+  text-shadow: 0 0 3px var(--color-secondary);
+}
+
+#list:hover {
+  color: #111;
+  /* color: yellow; */
+
+  text-shadow: 0 0 2px var(--color-primary);
+}
+/* ===== footer.css ===== */
+footer {
+  text-align: center;
+  padding: 2rem;
+  background: #111;
+  border-top: 2px solid var(--color-primary);
+  color: var(--color-muted);
+}
+/* ===== hero.css ===== */
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 7rem 2rem;
+  background: url('https://media.steelseriescdn.com/thumbs/filer_public/8c/ee/8cee8334-eb5e-482e-a194-03fbcafeea68/hero_cp2077_desktop_v3.png__540x540_crop-scale_optimize_subsampling-2.png')
+    no-repeat center center / cover;
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.hero h1 {
+  font-size: 3rem;
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px var(--color-secondary);
+}
+.hero p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.312); /* 黑色遮罩 */
+  z-index: 0;
+}
+
+.hero h1,
+.hero p,
+.hero a {
+  position: relative;
+  z-index: 1; /* 確保文字在遮罩之上 */
+}
+/* ===== button.css ===== */
+.btn-neon {
+  display: inline-block;
+  padding: 1rem 2rem;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  text-decoration: none;
+  text-shadow: 0 0 8px var(--color-primary);
+  transition: var(--transition);
+}
+.btn-neon:hover {
+  background: var(--color-primary);
+  color: var(--color-bg);
+  box-shadow: 0 0 20px var(--color-primary);
+}
+/* ===== card.css ===== */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 10px;
+}
+.game-card {
+  background: #1f1f2e;
+  padding: 0.1rem;
+  border: 2px solid var(--color-primary);
+  text-shadow: 0 0 4px var(--color-primary);
+  transition: transform var(--transition);
+  border-radius:1%;
+}
+.game-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--color-primary);
+}
+
+.game-card img {
+  border-radius: 1%;
+}
+/* ===== dropdown.css ===== */
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav ul li {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+  
+  /* dropdown 容器 */
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #1a1a2a;
+    border: 1px solid var(--color-primary);
+    min-width: 160px;
+    z-index: 99;
+  
+    display: none;      /* ✅ 保留這個就好 */
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 每個選單項 */
+  .dropdown-menu li {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #333;
+    
+  }
+  
+  /* 最後一項去邊框 */
+  .dropdown-menu li:last-child {
+    border-bottom: none;
+  }
+  
+  /* 選單連結樣式 */
+  .dropdown-menu a {
+    display: block;
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    color: var(--color-primary);
+    text-decoration: none;
+    background: transparent;
+    transition: var(--transition);
+  }
+  
+  /* 滑過變色 */
+  .dropdown-menu a:hover {
+    /* background: var(--color-secondary); */
+    background: yellow;
+    /* color: var(--color-bg); */
+  }
+  
+  /* 滑入展開 */
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+  
+/* ===== helpers.css ===== */
+.text-center {
+  text-align: center;
+}
+.mt-2 {
+  margin-top: 2rem;
+}
