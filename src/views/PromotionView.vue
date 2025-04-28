@@ -3,16 +3,25 @@
     <h2>促銷管理</h2>
     <el-button type="primary"  @click="showAddDialog = true">新增促銷</el-button>
     <el-button type="info"    @click="showBatchDialog = true">批量新增促銷</el-button>
+    <el-button type="primary" @click="showImportDialog = true">透過檔案新增</el-button>
     <el-button type="success" @click="activeTab = 'active';   fetchPromotions()">顯示當前促銷</el-button>
     <el-button type="warning" @click="activeTab = 'upcoming'; fetchUpcomingPromotions()">顯示尚未開始促銷</el-button>
     <el-button type="danger" :disabled="!multipleSelection.length" @click="confirmBatchDelete">批次刪除</el-button>
 
-    <el-input
-      v-model="searchKeyword"
-      placeholder="搜尋促銷遊戲名稱"
-      clearable
-      style="width: 300px; margin: 20px 0"
-    />
+    <div style="margin: 20px 0; text-align: left;">
+      <el-input
+        v-model="searchKeyword"
+        placeholder="搜尋促銷遊戲名稱"
+        clearable
+        style="
+          width: 300px;
+          border: 2px solid #00a9ff;
+          border-radius: 6px;
+          background-color: #1a1a2a;
+          color: #fff;
+        "
+      />
+    </div>
 
     <el-dialog v-model="showAddDialog" title="新增促銷" width="500px">
       <el-form :model="form">
@@ -48,6 +57,23 @@
       </template>
     </el-dialog>
 
+        <el-dialog v-model="showImportDialog" title="透過檔案匯入促銷" width="400px">
+      <el-upload
+        class="upload-demo"
+        drag
+        action=""
+        :http-request="uploadCsv"
+        :show-file-list="false"
+      >
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">將檔案拖到此處，或 <em>點擊上傳</em></div>
+        <div class="el-upload__tip" slot="tip">只能上傳 .csv 檔案</div>
+      </el-upload>
+      <template #footer>
+        <el-button @click="showImportDialog = false">關閉</el-button>
+      </template>
+    </el-dialog>
+
     <el-dialog v-model="showEditDialog" title="編輯促銷" width="500px">
       <el-form :model="editForm">
         <el-form-item label="折扣 (%)"><el-input v-model.number="editForm.discountRate" type="number" /></el-form-item>
@@ -71,27 +97,56 @@
     <el-table
       :data="pagedPromotions"
       @selection-change="handleSelectionChange"
+      @sort-change="handleSortChange"
       ref="tableRef"
       style="width:100%;margin-top:20px">
 
       <el-table-column type="selection" width="55" />
+
+      <el-table-column prop="gameId" label="遊戲ID" width="100" sortable="custom"
+                      :formatter="r => r.promotionGame?.map(p => p.game.id).join(', ') || '-'"/>
+
       <el-table-column label="遊戲圖片" width="120">
         <template #default="{ row }">
           <img v-if="row.promotionGame?.length"
-               :src="row.promotionGame[0].game.coverImageUrl"
-               style="width:100px;border-radius:4px" alt="封面"/>
+              :src="row.promotionGame[0].game.coverImageUrl"
+              style="width:100px;border-radius:4px" alt="封面"/>
         </template>
       </el-table-column>
-      <el-table-column label="促銷遊戲" width="300"
-                       :formatter="r => r.promotionGame?.map(p => p.game.name).join(', ') || '-'"/>
-      <el-table-column label="折扣 (%)"
-                       :formatter="r => r.promotionGame?.map(p => p.discountRate + '%' ).join(', ') || '-'"/>
-      <el-table-column prop="startTime" label="開始時間"/>
-      <el-table-column prop="endTime" label="結束時間"/>
+
+      <el-table-column prop="gameName" label="促銷遊戲" width="250" sortable="custom"
+                      :formatter="r => r.promotionGame?.map(p => p.game.name).join(', ') || '-'"/>
+
+      <el-table-column prop="price" label="原價" width="100" sortable="custom"
+                      :formatter="r => r.promotionGame?.map(p => p.game.price).join(', ') || '-'"/>
+
+      <el-table-column prop="discountRate" label="折扣" width="100" sortable="custom"
+                      :formatter="r => r.promotionGame?.map(p => p.discountRate + '%' ).join(', ') || '-'"/>
+
+      <el-table-column prop="finalPrice" label="特價" width="100" sortable="custom"
+                      :formatter="r => r.promotionGame?.map(p => (p.game.price * (1 - p.discountRate / 100)).toFixed(0)).join(', ') || '-'"/>
+                      <el-table-column prop="startTime" label="開始時間" width="200" sortable="custom">
+      <template #default="{ row }">
+        {{ formatDate(row.startTime) }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="endTime" label="結束時間" width="200" sortable="custom">
+      <template #default="{ row }">
+        {{ formatDate(row.endTime) }}
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="createdAt" label="折扣建立時間" width="200" sortable="custom">
+      <template #default="{ row }">
+        {{ formatDate(row.createdAt) }}
+      </template>
+    </el-table-column>
+
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
           <el-button type="success" size="small" @click="openEditDialog(row)">編輯</el-button>
-          <el-button type="danger"  size="small" @click="openConfirmDelete(row)">刪除</el-button>
+          <el-button type="danger" size="small" @click="openConfirmDelete(row)">刪除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -112,13 +167,14 @@ export default {
   name: 'PromotionView',
   data () {
     return {
-      showAddDialog:false, showBatchDialog:false, showEditDialog:false, confirmDeleteDialog:false,
+      showAddDialog:false, showBatchDialog:false, showEditDialog:false, confirmDeleteDialog:false,showImportDialog: false,
       form:{gameId:null, discountRate:null, startTime:'', endTime:''},
       batchForm:{gameIds:[], discountRate:null, startTime:'', endTime:''},
       editForm:{gameId:null, gameName:'', discountRate:null, startTime:'', endTime:''},
       gameOptions:[], batchGameOptions:[],
-      fullPromotionList:[], currentPage:1, pageSize:10, activeTab:'active',
-      searchKeyword:'', multipleSelection: []
+      fullPromotionList:[], currentPage:1, pageSize:20, activeTab:'active',
+      searchKeyword:'', multipleSelection: [],
+      sortProp: '', sortOrder: '',
     }
   },
   computed: {
@@ -275,7 +331,81 @@ export default {
       } catch (err) {
         this.$message.info('已取消批次刪除')
       }
+    },
+        async uploadCsv(param) {
+      const formData = new FormData()
+      formData.append('file', param.file)
+      try {
+        await axios.post('http://localhost:8080/api/promotions/import-csv', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        this.showImportDialog = false
+        this.currentPage = 1       // 匯入成功後回到第一頁
+        await this.fetchPromotions() // 重新拉取最新促銷列表
+        this.$message.success('匯入成功！')
+      } catch (error) {
+        this.$message.error('匯入失敗')
+      }
+    },
+    handleSortChange({ prop, order }) {
+  if (!prop || !order) return
+
+  if (this.sortProp === prop) {
+    this.sortOrder = this.sortOrder === 'ascending' ? 'descending' : 'ascending'
+  } else {
+    this.sortProp = prop
+    this.sortOrder = 'ascending'
+  }
+
+  const compare = (a, b) => {
+    const valA = this.extractSortValue(a, prop)
+    const valB = this.extractSortValue(b, prop)
+
+    if (valA == null) return 1
+    if (valB == null) return -1
+
+    if (this.sortOrder === 'ascending') {
+      return valA > valB ? 1 : -1
+    } else {
+      return valA < valB ? 1 : -1
     }
+  }
+  this.fullPromotionList.sort(compare)
+},
+
+extractSortValue(row, prop) {
+  if (!prop) return null
+
+  if (prop === 'startTime' || prop === 'endTime'  || prop === 'createdAt') {
+    return new Date(row[prop])
+  }
+  if (prop === 'gameId') {
+    return row.promotionGame?.[0]?.game?.id ?? null
+  }
+  if (prop === 'gameName') {
+    return row.promotionGame?.[0]?.game?.name ?? ''
+  }
+  if (prop === 'price') {
+    return row.promotionGame?.[0]?.game?.price ?? null
+  }
+  if (prop === 'discountRate') {
+    return row.promotionGame?.[0]?.discountRate ?? null
+  }
+  if (prop === 'finalPrice') {
+    const pg = row.promotionGame?.[0]
+    if (!pg) return null
+    return Math.floor(pg.game.price * (1 - pg.discountRate / 100))
+  }
+  
+  return null
+},
+  formatDate(isoString) {
+    if (!isoString) return '-'
+    const d = new Date(isoString)
+    const pad = n => n.toString().padStart(2, '0')
+    return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  }
+    
   }
 }
 </script>
@@ -283,7 +413,7 @@ export default {
 
 <style scoped>
 /* Vue 3 深層覆寫，確保撞不到其他頁 */
-::v-deep(.el-checkbox__inner){
+::v-deep(.el-checkbox__inner) {
   width:18px;height:18px;           /* 放大一點 */
   border:2px solid #8a8a8a;         /* 深灰邊框 */
   border-radius:4px;                /* 方中帶圓 */
