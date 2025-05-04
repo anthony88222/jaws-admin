@@ -223,7 +223,7 @@ export default {
     handlePageChange(p){ this.currentPage=p },
     async fetchGames(){
       const [gamesRes, activeRes, upRes]=await Promise.all([
-        axios.get('http://localhost:8080/api/games'),
+        axios.get('http://localhost:8080/api/games/game'),
         axios.get('http://localhost:8080/api/promotions/active'),
         axios.get('http://localhost:8080/api/promotions/upcoming')
       ])
