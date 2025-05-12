@@ -15,7 +15,6 @@
         </div>
       </el-aside>
       <el-container>
-        <el-header class="header-bar">後台管理系統</el-header>
         <el-main class="main-wrapper">
           <component :is="Component" />
         </el-main>
@@ -42,6 +41,11 @@ function handleLogout() {
 </script>
 
 <style>
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 .aside-dark {
   background: #1f1f2e;
   color: #fff;
