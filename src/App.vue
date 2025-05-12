@@ -1,77 +1,76 @@
 <template>
-  <el-container style="height: 100vh"> 
-    <el-aside width="200px" class="aside-dark">
-      <el-menu
-        :default-active="$route.path"
-        router
-        background-color="#1f1f2e"
-        text-color="#fff"
-        active-text-color="#00a9ff"
-      >
-        <el-menu-item index="/admin">Dashboard</el-menu-item>
-        <el-menu-item index="/admin/games">遊戲管理</el-menu-item>
-        <el-menu-item index="/admin/promotions">促銷管理</el-menu-item>
-      </el-menu>
-    </el-aside>
-
-    <el-container>
-      <el-header class="header-bar">Admin Panel</el-header>
-
-      <!-- 刪掉行內 style，交給 class 控管 -->
-      <el-main class="main-wrapper" style="flex:1">
-        <router-view />
-      </el-main>
+  <router-view v-slot="{ Component }">
+    <component :is="Component" v-if="isLoginPage" />
+    <el-container v-else style="height:100vh">
+      <el-aside width="200px" class="aside-dark">
+        <el-menu router :default-active="$route.path" background-color="#1f1f2e" text-color="#fff"
+          active-text-color="#00a9ff">
+          <el-menu-item index="/admin">Dashboard</el-menu-item>
+          <el-menu-item index="/admin/games">遊戲管理</el-menu-item>
+          <el-menu-item index="/admin/promotions">促銷管理</el-menu-item>
+        </el-menu>
+        <!-- 登出按鈕置底 -->
+        <div class="logout-container">
+          <el-button type="danger" @click="handleLogout">登出</el-button>
+        </div>
+      </el-aside>
+      <el-container>
+        <el-header class="header-bar">後台管理系統</el-header>
+        <el-main class="main-wrapper">
+          <component :is="Component" />
+        </el-main>
+      </el-container>
     </el-container>
-  </el-container>
+  </router-view>
 </template>
 
-<script>
-export default {
-  name: 'App'
+<script setup>
+import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
+import { useAdminAuthStore } from "@/stores/adminAuthStore";
+
+const route = useRoute();
+const router = useRouter();
+const adminAuth = useAdminAuthStore();
+const isLoginPage = computed(() => route.path === "/admin/login");
+
+// ❎ 登出後導回登入頁
+function handleLogout() {
+  adminAuth.logout();
+  router.push("/admin/login");
 }
 </script>
 
-<style>  /* 千萬別加 scoped！ */
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-/* 側欄 */
+<style>
 .aside-dark {
-  background:#1f1f2e;
-  color:#fff;
+  background: #1f1f2e;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 側欄 hover */
 .el-menu-item:hover {
-  background:#534b4b;
+  background: #534b4b;
 }
 
-/* 標題列 */
+.logout-container {
+  margin-top: auto;
+  padding: 16px;
+}
+
 .header-bar {
-  color:#000;
-  font-weight:bold;
-  padding-left:20px;
-  background-color: #9e9e9e;
+  padding-left: 20px;
+  background: #9e9e9e;
+  font-weight: bold;
 }
 
-.el-footer-bar {
-  background-color: #1f1f2e;
-  color: #ffffff;
-}
-
-/* 主內容——關鍵 */
 .el-main.main-wrapper {
-  padding: 20px;        /* ✅ 留白但不影響 flex 高度 */
-  flex: 1 1 auto;       /* 再保險一次，確保撐滿 */
-  background: #ffffff;  /* 若想淡灰底 */ /* 60px ≈ header 高度，自己量 */
+  padding: 20px;
+  background: #fff;
+  flex: 1;
 }
 
-/* 若 body 還有漸層，順手砍掉 */
-body {
-  background:none;
-}
+/* * {
+  outline: 1px solid red;
+} */
 </style>
