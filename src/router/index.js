@@ -5,6 +5,7 @@ import AdminLogin from "@/views/AdminLogin.vue";
 import DashboardView from "@/views/DashboardView.vue";
 import GameManagement from "@/views/GameManagement.vue";
 import PromotionView from "@/views/PromotionView.vue";
+import AdminUsers from "../views/AdminUsers.vue";
 
 const routes = [
   { path: "/", redirect: "/admin/login" },
@@ -14,6 +15,12 @@ const routes = [
     path: "/admin/dashboard",
     name: "Dashboard",
     component: DashboardView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/admin/users",
+    name: "AdminUsers",
+    component: AdminUsers,
     meta: { requiresAuth: true },
   },
   {

@@ -8,6 +8,7 @@
           <el-menu-item index="/admin">Dashboard</el-menu-item>
           <el-menu-item index="/admin/games">遊戲管理</el-menu-item>
           <el-menu-item index="/admin/promotions">促銷管理</el-menu-item>
+          <el-menu-item index="/admin/users">使用者管理</el-menu-item>
         </el-menu>
         <!-- 登出按鈕置底 -->
         <div class="logout-container">

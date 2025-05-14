@@ -2,6 +2,7 @@ import axios from "axios";
 import { useAdminAuthStore } from "@/stores/adminAuthStore";
 
 const instance = axios.create({ baseURL: "/api/admin", timeout: 5000 });
+
 instance.interceptors.request.use((config) => {
   const isAuthRoute =
     config.url.includes("/login") || config.url.includes("/register");
@@ -11,4 +12,5 @@ instance.interceptors.request.use((config) => {
   }
   return config;
 });
+
 export default instance;
