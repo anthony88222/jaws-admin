@@ -211,21 +211,21 @@ export default {
     },
     normalizeList(list){ return list.map(this.normalize) },
     async fetchPromotions(){
-      const {data}=await axios.get('http://localhost:8080/api/promotions/active')
+      const {data}=await axios.get('/api/promotions/active')
       this.activeTab='active'
       this.fullPromotionList=this.normalizeList(data).sort((a,b)=>new Date(a.endTime)-new Date(b.endTime))
     },
     async fetchUpcomingPromotions(){
-      const {data}=await axios.get('http://localhost:8080/api/promotions/upcoming')
+      const {data}=await axios.get('/api/promotions/upcoming')
       this.activeTab='upcoming'
       this.fullPromotionList=this.normalizeList(data).sort((a,b)=>new Date(a.endTime)-new Date(b.endTime))
     },
     handlePageChange(p){ this.currentPage=p },
     async fetchGames(){
       const [gamesRes, activeRes, upRes]=await Promise.all([
-        axios.get('http://localhost:8080/api/games/game'),
-        axios.get('http://localhost:8080/api/promotions/active'),
-        axios.get('http://localhost:8080/api/promotions/upcoming')
+        axios.get('/api/games/game'),
+        axios.get('/api/promotions/active'),
+        axios.get('/api/promotions/upcoming')
       ])
       const collect = list => (list ?? []).flatMap(p =>
         (p.promotionGame ?? p.promotionsGames ?? []).map(pg => pg.game.id)
@@ -243,7 +243,7 @@ export default {
     },
     async submitPromotion(){
       try{
-        await axios.post('http://localhost:8080/api/promotions/add',{
+        await axios.post('/api/promotions/add',{
           gameId:this.form.gameId,
           discountRate:this.form.discountRate,
           startTime:this.toLocalISOString(this.form.startTime),
@@ -257,7 +257,7 @@ export default {
     },
     async submitBatchPromotion(){
       try{
-        await axios.post('http://localhost:8080/api/promotions/batch-add',{
+        await axios.post('/api/promotions/batch-add',{
           gameIds:this.batchForm.gameIds,
           discountRate:this.batchForm.discountRate,
           startTime:this.toLocalISOString(this.batchForm.startTime),
@@ -282,7 +282,7 @@ export default {
     },
     async submitEdit(){
       try{
-        await axios.put(`http://localhost:8080/api/promotions/update/${this.editForm.gameId}`,{
+        await axios.put(`/api/promotions/update/${this.editForm.gameId}`,{
           discountRate:this.editForm.discountRate,
           startTime:this.toLocalISOString(this.editForm.startTime),
           endTime:this.toLocalISOString(this.editForm.endTime)
@@ -304,7 +304,7 @@ export default {
     },
     async deletePromotion(){
       try{
-        await axios.delete(`http://localhost:8080/api/promotions/${this.editForm.gameId}`)
+        await axios.delete(`/api/promotions/${this.editForm.gameId}`)
         this.confirmDeleteDialog=false
         this.showEditDialog=false
         this.activeTab==='active'?await this.fetchPromotions():await this.fetchUpcomingPromotions()
@@ -324,7 +324,7 @@ export default {
       }
       try {
         await this.$confirm(`確定要刪除 ${gameIds.length} 筆促銷資料？`, '警告', { type: 'warning' })
-        await axios.delete('http://localhost:8080/api/promotions/batch-delete', { data: gameIds })
+        await axios.delete('/api/promotions/batch-delete', { data: gameIds })
         this.$message.success(`已成功刪除 ${gameIds.length} 筆促銷`)
         this.multipleSelection = []
         this.activeTab === 'active' ? await this.fetchPromotions() : await this.fetchUpcomingPromotions()
@@ -336,7 +336,7 @@ export default {
       const formData = new FormData()
       formData.append('file', param.file)
       try {
-        await axios.post('http://localhost:8080/api/promotions/import-csv', formData, {
+        await axios.post('/api/promotions/import-csv', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         this.showImportDialog = false

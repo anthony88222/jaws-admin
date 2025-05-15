@@ -127,11 +127,11 @@ const categories = ref([])
 const games = ref([])
 
 const fetchGames = async () => {
-  const res = await axios.get('http://localhost:8080/api/games/game')
+  const res = await axios.get('/api/games/game')
   games.value = Array.isArray(res.data) ? res.data : [] // 確保是陣列
 }
 const fetchCategories = async () => {
-  const res = await axios.get('http://localhost:8080/api/games/categories')
+  const res = await axios.get('/api/games/categories')
   categories.value = res.data
 }
 
@@ -150,19 +150,19 @@ const handleSelectionChange = val => {
 
 const handleBatchDelete = async () => {
   for (const game of multipleSelection.value) {
-    await axios.delete(`http://localhost:8080/api/games/admin/games/${game.id}`)
+    await axios.delete(`/api/games/admin/games/${game.id}`)
   }
   fetchGames()
 }
 
 const deleteGame = async (id) => {
-  await axios.delete(`http://localhost:8080/api/games/admin/games/${id}`)
+  await axios.delete(`/api/games/admin/games/${id}`)
   fetchGames()
 }
 
 const deleteReview = async (reviewId) => {
   try {
-    await axios.delete(`http://localhost:8080/api/reviews/${reviewId}`)
+    await axios.delete(`/api/reviews/${reviewId}`)
     fetchGames()
   } catch (error) {
     console.error('刪除評論失敗', error)
@@ -195,9 +195,9 @@ const openEditDialog = game => {
 
 const submitGame = async () => {
   if (isEdit.value) {
-    await axios.patch(`http://localhost:8080/api/games/${editingId.value}`, form.value)
+    await axios.patch(`/api/games/${editingId.value}`, form.value)
   } else {
-    await axios.post('http://localhost:8080/api/games/admin/games', form.value)
+    await axios.post('/api/games/admin/games', form.value)
   }
   dialogVisible.value = false
   fetchGames()
@@ -205,7 +205,7 @@ const submitGame = async () => {
 
 const openReviewDialog = async (game) => {
   try {
-    const res = await axios.get(`http://localhost:8080/api/reviews/game/${game.id}`)
+    const res = await axios.get(`/api/reviews/game/${game.id}`)
     currentReviews.value = res.data
     reviewDialogVisible.value = true
   } catch (error) {
