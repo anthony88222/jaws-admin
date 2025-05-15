@@ -21,7 +21,7 @@
           <img :src="scope.row.coverImageUrl" style="width: 100px" />
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="遊戲名稱" sortable />
+      <el-table-column prop="name" label="遊戲名稱"/>
       <el-table-column prop="price" label="價格" width="100" sortable />
       <el-table-column label="分類">
         <template #default="scope">
@@ -84,7 +84,7 @@
       <div v-if="currentReviews.length > 0">
         <div v-for="review in currentReviews" :key="review.id" style="margin-bottom: 10px">
           <div style="display: flex; justify-content: space-between; align-items: center">
-            <span><strong>玩家{{ review.userId }}:</strong> {{ review.comment }}</span>
+            <span><strong>{{ review.username || '玩家' + review.userId }}:</strong> {{ review.comment }}</span>
             <el-button type="danger" size="small" plain @click="deleteReview(review.id)">刪除</el-button>
           </div>
         </div>
@@ -163,7 +163,7 @@ const deleteGame = async (id) => {
 const deleteReview = async (reviewId) => {
   try {
     await axios.delete(`http://localhost:8080/api/reviews/${reviewId}`)
-    fetchGames()
+    currentReviews.value = currentReviews.value.filter(r => r.id !== reviewId);
   } catch (error) {
     console.error('刪除評論失敗', error)
   }
