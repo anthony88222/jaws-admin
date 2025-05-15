@@ -37,18 +37,24 @@
                 </el-table-column>
 
                 <!-- 經驗值 -->
-                <el-table-column label="經驗值" width="200">
+                <el-table-column label="經驗值" width="150">
                     <template #default="{ row }">
                         {{ row.currentExp }} / {{ row.expPerLevel }} EXP
                     </template>
                 </el-table-column>
 
                 <!-- 錢包 -->
-                <el-table-column prop="wallet" label="錢包" width="80">
+                <el-table-column prop="wallet" label="錢包" width="120">
                     <template #default="{ row }">
-                        NT${{ row.wallet }}
+                        <span v-if="!isNaN(Number(row.wallet))">
+                            NT${{ Number(row.wallet).toLocaleString() }}
+                        </span>
+                        <span v-else>
+                            NT$ 0
+                        </span>
                     </template>
                 </el-table-column>
+
 
                 <!-- 狀態 -->
                 <el-table-column prop="isActive" label="狀態" width="80">
