@@ -61,6 +61,14 @@
         </el-form-item>
         <el-form-item label="圖片 URL">
           <el-input v-model="form.coverImageUrl" />
+          <el-form-item label="預覽圖 URL（可多筆）">
+  <div v-for="(url, index) in form.previewImages" :key="index" style="margin-bottom: 5px; display: flex; gap: 8px">
+    <el-input v-model="form.previewImages[index]" placeholder="請輸入圖片 URL" />
+    <el-button type="danger" @click="removePreviewImage(index)">刪除</el-button>
+  </div>
+  <el-button type="primary" @click="addPreviewImage">新增一筆預覽圖</el-button>
+</el-form-item>
+
         </el-form-item>
         <el-form-item label="分類">
           <el-select v-model="form.categoryIds" multiple filterable placeholder="選擇分類">
@@ -119,7 +127,8 @@ const defaultForm = () => ({
   status: 0,
   createdBy: 'admin',
   updatedBy: 'admin',
-  categoryIds: []
+  categoryIds: [],
+  previewImages: [] // 新增預覽圖 URL 陣列
 })
 
 const form = ref(defaultForm())
@@ -176,7 +185,7 @@ const openAddDialog = () => {
   editingId.value = null
 }
 
-const openEditDialog = game => {
+const openEditDialog = async game => {
   form.value = {
     name: game.name,
     description: game.description,
@@ -186,22 +195,37 @@ const openEditDialog = game => {
     status: game.status || 0,
     createdBy: 'admin',
     updatedBy: 'admin',
-    categoryIds: game.categories?.map(c => c.id) || []
+    categoryIds: game.categories?.map(c => c.id) || [],
+    previewImages:[]
   }
+  // ❗呼叫 API 取得該遊戲的預覽圖（這是你後端已有的）
+  try {
+    const res = await axios.get(`/api/games/${game.id}/previews`)
+    form.value.previewImages = res.data.map(p => p.imageUrl)
+  } catch (err) {
+    console.warn('載入預覽圖失敗', err)
+  }
+
   dialogVisible.value = true
   isEdit.value = true
   editingId.value = game.id
 }
 
 const submitGame = async () => {
-  if (isEdit.value) {
-    await axios.patch(`/api/games/${editingId.value}`, form.value)
-  } else {
-    await axios.post('/api/games/admin/games', form.value)
+  try {
+    if (isEdit.value) {
+      await axios.patch(`/api/games/${editingId.value}`, form.value)
+    } else {
+      await axios.post('/api/games/admin/games', form.value)
+    }
+    dialogVisible.value = false
+    fetchGames()
+  } catch (err) {
+    console.error('❌ 新增或更新遊戲失敗:', err.response?.data || err)
+    alert('新增或更新失敗：' + (err.response?.data?.message || '未知錯誤'))
   }
-  dialogVisible.value = false
-  fetchGames()
 }
+
 
 const openReviewDialog = async (game) => {
   try {
@@ -211,6 +235,17 @@ const openReviewDialog = async (game) => {
   } catch (error) {
     console.error('無法取得評論', error)
   }
+}
+
+const addPreviewImage = () => {
+  if (!form.value.previewImages) {
+    form.value.previewImages = []
+  }
+  form.value.previewImages.push('')
+}
+
+const removePreviewImage = (index) => {
+  form.value.previewImages.splice(index, 1)
 }
 
 </script>
